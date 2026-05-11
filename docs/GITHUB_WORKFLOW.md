@@ -43,7 +43,7 @@ git commit -m "Initial commit"
 建议填写：
 
 ```text
-Repository name: desktop-pet
+Repository name: yui-pet
 Description: Electron + Vue desktop pet app
 Visibility: Public 或 Private
 ```
@@ -61,7 +61,7 @@ Visibility: Public 或 Private
 把下面命令里的 `<你的用户名>` 换成你的 GitHub 用户名：
 
 ```bash
-git remote add origin https://github.com/<你的用户名>/desktop-pet.git
+git remote add origin https://github.com/<你的用户名>/yui-pet.git
 git push -u origin main
 ```
 
@@ -161,8 +161,8 @@ git remote -v
 先克隆仓库：
 
 ```bash
-git clone https://github.com/<你的用户名>/desktop-pet.git
-cd desktop-pet
+git clone https://github.com/<你的用户名>/yui-pet.git
+cd yui-pet
 npm install
 npm run dev
 ```
@@ -202,4 +202,3 @@ git add .
 git commit -m "描述这次更新"
 git push
 ```
-
