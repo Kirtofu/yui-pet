@@ -47,7 +47,6 @@ npm run build
 desktop-pet/
 ├─ docs/
 │  ├─ ACTION_TRIGGERS.md       # 桌宠动作触发条件
-│  └─ GITHUB_WORKFLOW.md       # GitHub 上传与版本更新流程
 ├─ electron/
 │  ├─ main.js                  # Electron 主进程
 │  ├─ preload.js               # 预加载脚本（安全桥接）
@@ -180,4 +179,3 @@ const characterName = ref('呆唯')  // 改成你想要的名字
 - 首次打包需要下载 Electron 二进制文件（约 109MB），建议使用国内镜像加速
 - 打包命令中已配置跳过代码签名，适合个人使用
 - 设置数据保存在 `%APPDATA%/desktop-pet/pet-settings.json`，删除此文件可重置所有设置
-- GitHub 上传和版本更新流程见 `docs/GITHUB_WORKFLOW.md`
