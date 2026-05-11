@@ -1,0 +1,325 @@
+/* 桌宠动画关键帧定义 */
+
+/* 呼吸浮动 */
+@keyframes breathe {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* 眨眼 */
+@keyframes blink {
+  0% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.1);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+/* 开心弹跳 */
+@keyframes happy-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+/* 生气抖动 */
+@keyframes angry-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+/* 困倦点头 */
+@keyframes sleepy-nod {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translateY(3px) rotate(2deg);
+  }
+  60% {
+    transform: translateY(5px) rotate(3deg);
+  }
+  80% {
+    transform: translateY(2px) rotate(1deg);
+  }
+}
+
+/* 被点击反应 */
+@keyframes click-react {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 拖拽摇摆 */
+@keyframes drag-swing {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* 工作专注 */
+@keyframes work-focus {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-2px);
+    opacity: 0.95;
+  }
+}
+
+/* 休息放松 */
+@keyframes rest-relax {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-2px) rotate(-1deg);
+  }
+  75% {
+    transform: translateY(-2px) rotate(1deg);
+  }
+}
+
+/* 呼吸光效脉冲 */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+/* 星星闪烁 */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+/* 浮起消失 */
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+}
+
+/* 怒气弹出 */
+@keyframes angry-pop {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* 散步动画 */
+@keyframes walk-left {
+  0%, 100% {
+    transform: translateX(0) scaleX(1);
+  }
+  50% {
+    transform: translateX(-2px) scaleX(1);
+  }
+}
+
+@keyframes walk-right {
+  0%, 100% {
+    transform: translateX(0) scaleX(-1);
+  }
+  50% {
+    transform: translateX(2px) scaleX(-1);
+  }
+}
+
+/* 轻微摇摆（待机时的微动） */
+@keyframes gentle-sway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  33% {
+    transform: rotate(0.5deg);
+  }
+  66% {
+    transform: rotate(-0.5deg);
+  }
+}
+
+/* 心跳效果（被摸头时） */
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.1);
+  }
+  30% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes startled-pop {
+  0% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  30% {
+    transform: translateY(-14px) scale(1.08) rotate(-4deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes walk-bob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(-0.6deg);
+  }
+}
+
+@keyframes sleep-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.94;
+  }
+  50% {
+    transform: translateY(2px) scale(0.995);
+    opacity: 0.88;
+  }
+}
+
+@keyframes soft-happy {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-5px) scale(1.025);
+  }
+  70% {
+    transform: translateY(-2px) scale(1.01);
+  }
+}
+
+@keyframes stretch-breathe {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-4px) scaleY(1.015);
+  }
+}
+
+@keyframes look-peek {
+  0%, 100% {
+    transform: translateY(0) scale(1.01);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.04);
+  }
+}
+
+@keyframes stretch-out {
+  0%, 100% {
+    transform: scaleY(1) rotate(0deg);
+  }
+  45% {
+    transform: scaleY(1.08) rotate(-2deg);
+  }
+  70% {
+    transform: scaleY(0.96) rotate(1deg);
+  }
+}
+
+@keyframes drop-bounce {
+  0% {
+    transform: translateY(-10px) scaleY(1.04);
+  }
+  55% {
+    transform: translateY(4px) scaleY(0.94);
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+/* 淡入 */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 缩放弹入 */
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

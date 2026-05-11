@@ -1,0 +1,24 @@
+{
+  "id": "yui",
+  "name": "呆唯",
+  "defaultImage": "../../assets/character/idle.png",
+  "states": {
+    "idle": "../../assets/character/idle.png",
+    "walk": "../../assets/character/walk.png",
+    "sleep": "../../assets/character/sleep.png",
+    "happy": "../../assets/character/happy.png",
+    "angry": "../../assets/character/angry.png",
+    "bored": "../../assets/character/sleepy.png",
+    "drag": "../../assets/character/drag.png",
+    "talk": "../../assets/character/happy.png",
+    "remind": "../../assets/character/happy.png",
+    "pomodoro": "../../assets/character/happy.png",
+    "stretch": "../../assets/character/stretch.png",
+    "sit": "../../assets/character/sit.png",
+    "headpat": "../../assets/character/headpat.png",
+    "startled": "../../assets/character/startled.png"
+  },
+  "dialogueFile": "../../data/dialogueCatalog.js",
+  "soundDir": "./sounds",
+  "defaultScale": 1
+}

@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+release/
+out/
+build/
+
+# Local runtime data and secrets
+.env
+.env.*
+pet-settings.json
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+vite-dev.log
+vite-dev.err.log
+
+# Temporary screenshots / local captures
+desktop-pet-window-capture*.png
+action-preview.png
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
