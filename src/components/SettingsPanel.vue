@@ -71,7 +71,7 @@
             </select>
           </label>
           <button class="primary-btn" @click="$emit('open-shortcuts')">管理快捷方式 ({{ petStore.actionShortcuts.length }})</button>
-          <p class="hint">在聊天框输入"帮我打开 leetcode""搜一下 Vue 3"等，桌宠会自动执行。AI 也会基于此列表智能调用。</p>
+          <p class="hint">开启后，桌宠可以根据聊天内容执行已登记的快捷动作。AI 也会基于此列表智能调用。</p>
         </section>
 
         <section class="setting-section">

@@ -65,7 +65,7 @@
         <input
           v-model="inputText"
           class="chat-input"
-          placeholder="说点什么吧... 比如「帮我打开 leetcode」"
+          placeholder="说点什么吧..."
           @keydown.enter="sendMessage"
           maxlength="200"
         />
@@ -248,7 +248,7 @@ function scrollToBottom() {
 
 onMounted(() => {
   if (!petStore.chatMessages.length) {
-    petStore.addChatMessage('pet', `嘿嘿~ 你来找我玩啦！可以试试说「帮我打开 leetcode」让我帮你操作。`)
+    petStore.addChatMessage('pet', `嘿嘿~ 你来找我玩啦！有什么想和我说的吗？`)
   }
   scrollToBottom()
 })

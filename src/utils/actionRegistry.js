@@ -175,28 +175,29 @@ export function buildActionsPromptSection(shortcuts = []) {
  */
 export async function executeAction(action) {
   if (!action || !action.type) return { ok: false, message: '无效动作' }
+  const payload = JSON.parse(JSON.stringify(action))
 
   if (window.electronAPI?.executeAction) {
     try {
-      return await window.electronAPI.executeAction(action)
+      return await window.electronAPI.executeAction(payload)
     } catch (e) {
       return { ok: false, message: String(e && e.message ? e.message : e) }
     }
   }
 
   // 浏览器回退：仅支持 open_url / search_web
-  if (action.type === 'open_url' && /^https?:\/\//.test(String(action.target || ''))) {
-    window.open(action.target, '_blank', 'noopener')
+  if (payload.type === 'open_url' && /^https?:\/\//.test(String(payload.target || ''))) {
+    window.open(payload.target, '_blank', 'noopener')
     return { ok: true, message: '已在浏览器打开' }
   }
-  if (action.type === 'search_web') {
+  if (payload.type === 'search_web') {
     const engines = {
       bing: 'https://www.bing.com/search?q=',
       google: 'https://www.google.com/search?q=',
       baidu: 'https://www.baidu.com/s?wd='
     }
-    const base = engines[action.engine] || engines.bing
-    window.open(base + encodeURIComponent(action.target || ''), '_blank', 'noopener')
+    const base = engines[payload.engine] || engines.bing
+    window.open(base + encodeURIComponent(payload.target || ''), '_blank', 'noopener')
     return { ok: true, message: '已在浏览器搜索' }
   }
   return { ok: false, message: '当前环境无法执行此动作' }

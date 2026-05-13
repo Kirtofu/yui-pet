@@ -20,7 +20,7 @@
               <option value="always">总是确认</option>
             </select>
           </label>
-          <p class="hint">在聊天里说"帮我打开 X / 搜一下 Y"等就能触发。AI 也会基于此列表智能调用。</p>
+          <p class="hint">在聊天里提出明确操作需求时，桌宠会尝试触发对应快捷方式。AI 也会基于此列表智能调用。</p>
         </section>
 
         <section class="setting-section">
@@ -224,11 +224,13 @@ function changePolicy(event) {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  padding: 12px;
 }
 
 .shortcuts-panel {
-  width: 360px;
-  max-height: 560px;
+  width: min(340px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20px);
   border-radius: 18px;
@@ -246,6 +248,11 @@ function changePolicy(event) {
   justify-content: space-between;
   padding: 12px 16px;
   background: rgba(255, 182, 193, 0.16);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  backdrop-filter: blur(16px);
 }
 
 .panel-title {
@@ -262,6 +269,7 @@ function changePolicy(event) {
   background: rgba(0, 0, 0, 0.06);
   color: #777;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .panel-body {
