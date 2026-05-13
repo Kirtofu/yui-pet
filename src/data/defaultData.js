@@ -18,6 +18,25 @@ export const DEFAULT_REMINDERS = [
   { id: 'exercise', icon: '🏃', title: '运动', content: '动一动，身体会更轻松~', time: '19:30', repeat: true, cycle: 'daily', sound: 'reminder', enabled: false, completed: [] }
 ]
 
+// 默认快捷方式：覆盖"打开网页 + 打开本机自带应用"两种常见场景。
+// 用户可在 ShortcutsPanel 中编辑、新增、删除。
+export const DEFAULT_SHORTCUTS = [
+  { id: 'leetcode', icon: '💻', label: 'LeetCode', keywords: ['leetcode', '力扣', '刷题', 'lc'], type: 'open_url', target: 'https://leetcode.cn' },
+  { id: 'github', icon: '🐙', label: 'GitHub', keywords: ['github', 'gh'], type: 'open_url', target: 'https://github.com' },
+  { id: 'bilibili', icon: '📺', label: 'B站', keywords: ['bilibili', 'b站', 'B站', '哔哩'], type: 'open_url', target: 'https://www.bilibili.com' },
+  { id: 'youtube', icon: '🎬', label: 'YouTube', keywords: ['youtube', '油管'], type: 'open_url', target: 'https://www.youtube.com' },
+  { id: 'google', icon: '🔎', label: 'Google', keywords: ['google', '谷歌'], type: 'open_url', target: 'https://www.google.com' },
+  { id: 'baidu', icon: '🔍', label: '百度', keywords: ['百度'], type: 'open_url', target: 'https://www.baidu.com' },
+  { id: 'browser', icon: '🌐', label: '浏览器', keywords: ['浏览器', '上网'], type: 'open_url', target: 'https://www.bing.com' },
+  { id: 'zhihu', icon: '💡', label: '知乎', keywords: ['知乎'], type: 'open_url', target: 'https://www.zhihu.com' },
+  { id: 'gmail', icon: '📧', label: '邮箱', keywords: ['邮箱', 'gmail', '邮件'], type: 'open_url', target: 'https://mail.google.com' },
+  { id: 'chatgpt', icon: '🤖', label: 'ChatGPT', keywords: ['chatgpt', 'gpt'], type: 'open_url', target: 'https://chat.openai.com' },
+  { id: 'twitter', icon: '🐦', label: 'X/Twitter', keywords: ['twitter', '推特'], type: 'open_url', target: 'https://twitter.com' },
+  { id: 'calc', icon: '🔢', label: '计算器', keywords: ['计算器', 'calc'], type: 'open_app', params: { command: 'calc.exe' } },
+  { id: 'notepad', icon: '📝', label: '记事本', keywords: ['记事本', 'notepad'], type: 'open_app', params: { command: 'notepad.exe' } },
+  { id: 'explorer', icon: '📁', label: '文件资源管理器', keywords: ['资源管理器', '文件管理器', 'explorer', '我的电脑'], type: 'open_app', params: { command: 'explorer.exe' } }
+]
+
 export const DEFAULT_DATA = {
   version: APP_DATA_VERSION,
   character: {
@@ -45,6 +64,11 @@ export const DEFAULT_DATA = {
       baseURL: 'https://api.deepseek.com/chat/completions',
       model: 'deepseek-chat',
       systemPrompt: '你叫呆唯，是用户桌面上的陪伴型桌宠。你的性格天然、元气、温柔，有一点迷糊和贪吃，喜欢音乐、吉他、蛋糕和陪用户学习。回复要短、自然、可爱但不要装腔，不要长篇说教；用户累了就安静陪伴，用户学习时就乖乖鼓励。'
+    },
+    actions: {
+      enabled: true,
+      confirmPolicy: 'risky',
+      shortcuts: DEFAULT_SHORTCUTS
     }
   },
   pet: {

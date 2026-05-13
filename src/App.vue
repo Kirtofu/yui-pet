@@ -28,6 +28,7 @@
       @open-info="openInfo"
       @open-achievements="openAchievements"
       @open-settings="openSettings"
+      @open-shortcuts="openShortcuts"
       @toggle-top="toggleAlwaysOnTop"
       @set-opacity="setOpacity"
       @set-pet-size="setPetSize"
@@ -41,7 +42,11 @@
     />
 
     <!-- 聊天面板 -->
-    <ChatPanel v-if="showChatPanel" @close="showChatPanel = false" />
+    <ChatPanel
+      v-if="showChatPanel"
+      @close="showChatPanel = false"
+      @open-shortcuts="openShortcuts"
+    />
 
     <!-- 番茄钟面板 -->
     <PomodoroPanel v-if="showPomodoroPanel" @close="showPomodoroPanel = false" />
@@ -54,7 +59,12 @@
 
     <StudyPanel v-if="showStudyPanel" @close="showStudyPanel = false" />
     <AchievementsPanel v-if="showAchievementsPanel" @close="showAchievementsPanel = false" />
-    <SettingsPanel v-if="showSettingsPanel" @close="showSettingsPanel = false" />
+    <SettingsPanel
+      v-if="showSettingsPanel"
+      @close="showSettingsPanel = false"
+      @open-shortcuts="openShortcuts"
+    />
+    <ShortcutsPanel v-if="showShortcutsPanel" @close="showShortcutsPanel = false" />
   </div>
 </template>
 
@@ -72,6 +82,7 @@ import CharacterInfoPanel from './components/CharacterInfoPanel.vue'
 import StudyPanel from './components/StudyPanel.vue'
 import AchievementsPanel from './components/AchievementsPanel.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
+import ShortcutsPanel from './components/ShortcutsPanel.vue'
 
 const petStore = usePetStore()
 usePetBehavior()
@@ -87,6 +98,7 @@ const showInfoPanel = ref(false)
 const showStudyPanel = ref(false)
 const showAchievementsPanel = ref(false)
 const showSettingsPanel = ref(false)
+const showShortcutsPanel = ref(false)
 
 // 右键菜单
 function showContextMenu(e) {
@@ -153,6 +165,11 @@ function openAchievements() {
 
 function openSettings() {
   showSettingsPanel.value = true
+  showMenu.value = false
+}
+
+function openShortcuts() {
+  showShortcutsPanel.value = true
   showMenu.value = false
 }
 

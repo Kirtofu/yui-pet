@@ -2,6 +2,7 @@
 const { app, BrowserWindow, ipcMain, screen, Menu, Tray, nativeImage } = require('electron')
 const path = require('path')
 const fs = require('fs')
+const { executeAction } = require('./actionExecutor')
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -307,4 +308,14 @@ ipcMain.handle('pet:get-position', () => {
 
 ipcMain.handle('pet:set-position', (_evt, x, y) => {
   if (petWindow) petWindow.setPosition(Math.round(x), Math.round(y))
+})
+
+// ====================== IPC: 动作执行 ======================
+ipcMain.handle('action:execute', async (_evt, action) => {
+  try {
+    return await executeAction(action)
+  } catch (e) {
+    console.error('[action] execute error:', e)
+    return { ok: false, message: String(e && e.message ? e.message : e) }
+  }
 })

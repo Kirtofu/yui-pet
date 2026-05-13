@@ -24,6 +24,16 @@ npm run build
 
 打包完成后，在 `release/` 目录下会生成 `DesktopPet.exe`，免安装，双击直接运行。
 
+### 直接运行已打包版本
+
+如果你已经有 `DesktopPet.exe`，不需要启动开发服务。直接双击：
+
+```text
+release/DesktopPet.exe
+```
+
+`npm run dev` 只用于开发调试；正常使用和分发请使用 `release/DesktopPet.exe` 或 GitHub Release 里的 exe。
+
 ## 功能列表
 
 - ✅ 透明窗口、无边框、桌面置顶
@@ -33,6 +43,8 @@ npm run build
 - ✅ 情绪系统（好感度影响桌宠表现）
 - ✅ 时间段问候（早/中/晚/深夜不同台词）
 - ✅ AI 聊天（接入 DeepSeek，支持上下文对话）
+- ✅ 对话驱动操作（例如“帮我打开 leetcode”“搜一下 Vue 3 教程”）
+- ✅ 快捷动作管理（网页、应用、路径、搜索；带白名单和确认策略）
 - ✅ 番茄钟（工作25分钟/休息5分钟，可调节）
 - ✅ 定时提醒（喝水/休息/吃饭/睡觉/护眼）
 - ✅ 角色信息面板（名称/好感度/情绪/陪伴天数/互动次数）
@@ -50,6 +62,7 @@ desktop-pet/
 ├─ electron/
 │  ├─ main.js                  # Electron 主进程
 │  ├─ preload.js               # 预加载脚本（安全桥接）
+│  ├─ actionExecutor.js        # 对话动作执行器
 │  └─ tray-icon.png            # 系统托盘图标
 ├─ public/
 ├─ package.json
@@ -66,9 +79,10 @@ desktop-pet/
    │  ├─ SpeechBubble.vue       # 气泡对话
    │  ├─ ContextMenu.vue        # 右键菜单
    │  ├─ ChatPanel.vue          # 聊天面板
+   │  ├─ ShortcutsPanel.vue     # 快捷动作管理
    │  ├─ PomodoroPanel.vue      # 番茄钟
    │  ├─ ReminderPanel.vue      # 提醒设置
-   │  └─ CharacterInfoPanel.vue # 角色信息
+   │  ├─ CharacterInfoPanel.vue # 角色信息
    │  ├─ SettingsPanel.vue      # 设置面板
    │  ├─ StudyPanel.vue         # 学习陪伴
    │  └─ AchievementsPanel.vue  # 成就面板
@@ -81,6 +95,7 @@ desktop-pet/
    │  └─ petStore.js            # Pinia 状态管理
    ├─ utils/
    │  ├─ ai.js                  # AI 对话接口
+   │  ├─ actionRegistry.js      # 意图匹配、动作标记解析
    │  ├─ audioManager.js        # 音效管理
    │  ├─ dialogueEngine.js      # 台词选择与关键词回复
    │  ├─ stateMachine.js        # 状态机

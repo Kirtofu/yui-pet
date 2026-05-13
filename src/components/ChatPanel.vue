@@ -4,6 +4,7 @@
       <!-- 标题栏 -->
       <div class="chat-header">
         <span class="chat-title">💬 和{{ petStore.characterName }}聊天</span>
+        <button class="header-btn" @click="$emit('open-shortcuts')" title="快捷动作">🎯</button>
         <button class="clear-btn" @click="clearMessages">清空</button>
         <button class="close-btn" @click="$emit('close')">✕</button>
       </div>
@@ -20,7 +21,34 @@
             {{ msg.role === 'pet' ? '🐾' : '👤' }}
           </div>
           <div class="message-bubble">
-            <p>{{ msg.text }}</p>
+            <p v-if="msg.text">{{ msg.text }}</p>
+
+            <!-- 动作卡片：待确认 / 执行中 / 已完成 / 失败 -->
+            <div v-if="msg.actions && msg.actions.length" class="action-list">
+              <div
+                v-for="(act, idx) in msg.actions"
+                :key="idx"
+                class="action-card"
+                :class="`status-${act.status || 'pending'}`"
+              >
+                <div class="action-card-main">
+                  <span class="action-card-icon">{{ act.icon || '✨' }}</span>
+                  <div class="action-card-text">
+                    <div class="action-card-title">{{ act.label || '执行动作' }}</div>
+                    <div class="action-card-desc">{{ describeAction(act) }}</div>
+                  </div>
+                </div>
+                <div v-if="act.status === 'pending'" class="action-card-buttons">
+                  <button class="action-btn primary" @click="confirmAction(msg, idx)">执行</button>
+                  <button class="action-btn ghost" @click="cancelAction(msg, idx)">取消</button>
+                </div>
+                <div v-else-if="act.status === 'running'" class="action-card-status running">执行中...</div>
+                <div v-else-if="act.status === 'done'" class="action-card-status done">✓ 已为你完成</div>
+                <div v-else-if="act.status === 'failed'" class="action-card-status failed">⚠ {{ act.message || '执行失败' }}</div>
+                <div v-else-if="act.status === 'cancelled'" class="action-card-status cancelled">已取消</div>
+              </div>
+            </div>
+
             <span class="message-time">{{ msg.time }}</span>
           </div>
         </div>
@@ -37,7 +65,7 @@
         <input
           v-model="inputText"
           class="chat-input"
-          placeholder="说点什么吧..."
+          placeholder="说点什么吧... 比如「帮我打开 leetcode」"
           @keydown.enter="sendMessage"
           maxlength="200"
         />
@@ -53,8 +81,14 @@
 import { computed, ref, nextTick, onMounted } from 'vue'
 import { usePetStore } from '../stores/petStore'
 import { getAIReply } from '../utils/ai'
+import {
+  matchIntent,
+  parseActionMarkers,
+  executeAction,
+  needsConfirmation
+} from '../utils/actionRegistry'
 
-defineEmits(['close'])
+defineEmits(['close', 'open-shortcuts'])
 
 const petStore = usePetStore()
 const inputText = ref('')
@@ -67,22 +101,130 @@ function formatNow() {
   return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 }
 
+function describeAction(act) {
+  if (!act || !act.action) return ''
+  const a = act.action
+  if (a.type === 'open_url') return a.target
+  if (a.type === 'search_web') return `在 ${a.engine || 'bing'} 搜索"${a.target}"`
+  if (a.type === 'open_app') return `启动 ${(a.params && a.params.command) || a.target}`
+  if (a.type === 'open_path') return `打开 ${a.target}`
+  return ''
+}
+
+function chooseReply(action, sourceLabel) {
+  const label = sourceLabel || ''
+  const replies = {
+    open_url: [`好嘞~ 我这就帮你打开${label}。`, `嗯嗯，${label}马上来！`, `诶嘿，已经在打开${label}啦。`],
+    search_web: [`好的~ 我帮你搜一下${label}。`, `嗯嗯，马上搜${label}。`],
+    open_app: [`好~ 我帮你启动${label}。`, `${label}启动中，稍等下哦。`],
+    open_path: [`收到，正在为你打开${label}。`]
+  }
+  const arr = replies[action.type] || ['好的，我来帮你~']
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+function failureReply(label) {
+  return label
+    ? `呜呜，${label}没能打开，可能是路径不对或者权限不够。`
+    : '呜呜，刚才那个操作我没能完成，可能配置不太对。'
+}
+
+async function runAction(message, index) {
+  const act = message.actions[index]
+  if (!act || act.status !== 'pending') return
+  act.status = 'running'
+  petStore.updateChatMessage(message.id, { actions: [...message.actions] })
+
+  const result = await executeAction(act.action)
+
+  if (result && result.ok) {
+    act.status = 'done'
+    act.message = result.message || ''
+  } else {
+    act.status = 'failed'
+    act.message = (result && result.message) || '执行失败'
+    // 给用户一个安慰回复
+    petStore.addChatMessage('pet', failureReply(act.label))
+  }
+  petStore.updateChatMessage(message.id, { actions: [...message.actions] })
+  await nextTick()
+  scrollToBottom()
+}
+
+function confirmAction(message, idx) {
+  runAction(message, idx)
+}
+
+function cancelAction(message, idx) {
+  const act = message.actions[idx]
+  if (!act) return
+  act.status = 'cancelled'
+  petStore.updateChatMessage(message.id, { actions: [...message.actions] })
+}
+
+/**
+ * 把一组带 status='pending' 的动作附加到一条桌宠消息上，
+ * 然后根据 confirmPolicy 决定是直接执行还是等用户点确认。
+ */
+async function attachAndMaybeRun(petMessage, actions) {
+  if (!actions || !actions.length) return
+  const policy = petStore.actionsConfig.confirmPolicy || 'risky'
+  const decorated = actions.map(item => ({
+    label: item.label,
+    icon: item.icon,
+    action: item.action,
+    status: needsConfirmation(item.action, policy) ? 'pending' : 'pending'
+  }))
+  petStore.updateChatMessage(petMessage.id, { actions: decorated })
+
+  // 对于不需要确认的动作，自动触发
+  for (let i = 0; i < decorated.length; i++) {
+    if (!needsConfirmation(decorated[i].action, policy)) {
+      // 取最新的 message 引用
+      const fresh = petStore.chatMessages.find(m => m.id === petMessage.id)
+      if (fresh) await runAction(fresh, i)
+    }
+  }
+}
+
 async function sendMessage() {
   const text = inputText.value.trim()
   if (!text) return
 
   petStore.addChatMessage('user', text)
   inputText.value = ''
-
   petStore.addMood(2)
   petStore.addAffection(1, 'chat')
-
   await nextTick()
   scrollToBottom()
 
+  const actionsEnabled = petStore.actionsConfig.enabled !== false
+
+  // 第一层：本地意图匹配（毫秒级，无 API 调用）
+  if (actionsEnabled) {
+    const intent = matchIntent(text, petStore.actionShortcuts)
+    if (intent) {
+      const reply = chooseReply(intent.action, intent.label)
+      const petMsg = petStore.addChatMessage('pet', reply)
+      await attachAndMaybeRun(petMsg, [intent])
+      await nextTick()
+      scrollToBottom()
+      return
+    }
+  }
+
+  // 第二层：调用 AI（提示中已注入动作能力说明，AI 可在回复中嵌入标记）
   setTimeout(async () => {
-    const reply = await getAIReply(text, petStore.data.settings.ai)
-    petStore.addChatMessage('pet', reply)
+    const shortcutsForAI = actionsEnabled ? petStore.actionShortcuts : []
+    const raw = await getAIReply(text, petStore.data.settings.ai, shortcutsForAI)
+    const { text: clean, actions } = actionsEnabled
+      ? parseActionMarkers(raw, petStore.actionShortcuts)
+      : { text: raw, actions: [] }
+
+    const visibleText = clean || (actions.length ? '好嘞~' : raw)
+    const petMsg = petStore.addChatMessage('pet', visibleText)
+    if (actions.length) await attachAndMaybeRun(petMsg, actions)
+
     await nextTick()
     scrollToBottom()
   }, 300)
@@ -106,7 +248,7 @@ function scrollToBottom() {
 
 onMounted(() => {
   if (!petStore.chatMessages.length) {
-    petStore.addChatMessage('pet', `嘿嘿~ 你来找我玩啦！有什么想和我说的吗？`)
+    petStore.addChatMessage('pet', `嘿嘿~ 你来找我玩啦！可以试试说「帮我打开 leetcode」让我帮你操作。`)
   }
   scrollToBottom()
 })
@@ -126,8 +268,8 @@ onMounted(() => {
 }
 
 .chat-panel {
-  width: 300px;
-  height: 420px;
+  width: 320px;
+  height: 440px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -152,8 +294,24 @@ onMounted(() => {
   border-bottom: 1px solid rgba(255, 182, 193, 0.2);
 }
 
-.clear-btn {
+.header-btn {
   margin-left: auto;
+  margin-right: 6px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.header-btn:hover {
+  background: rgba(255, 182, 193, 0.25);
+}
+
+.clear-btn {
   margin-right: 8px;
   padding: 4px 8px;
   border: none;
@@ -161,6 +319,7 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.55);
   color: #999;
   font-size: 11px;
+  cursor: pointer;
 }
 
 .chat-title {
@@ -234,7 +393,7 @@ onMounted(() => {
 }
 
 .message-bubble {
-  max-width: 180px;
+  max-width: 220px;
   padding: 8px 12px;
   border-radius: 14px;
   font-size: 13px;
@@ -266,6 +425,119 @@ onMounted(() => {
   display: block;
 }
 
+/* 动作卡片 */
+.action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.action-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 182, 193, 0.35);
+  border-radius: 10px;
+  padding: 8px 10px;
+  transition: all 0.2s;
+}
+
+.action-card.status-done {
+  border-color: rgba(120, 200, 130, 0.55);
+  background: rgba(232, 250, 234, 0.7);
+}
+
+.action-card.status-failed {
+  border-color: rgba(231, 76, 60, 0.4);
+  background: rgba(255, 230, 226, 0.75);
+}
+
+.action-card.status-cancelled {
+  opacity: 0.6;
+}
+
+.action-card-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-card-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.action-card-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.action-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a4a6a;
+}
+
+.action-card-desc {
+  font-size: 10px;
+  color: #999;
+  word-break: break-all;
+  margin-top: 1px;
+}
+
+.action-card-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #ff8fab, #ff69b4);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.3);
+}
+
+.action-btn.ghost {
+  background: rgba(0, 0, 0, 0.05);
+  color: #888;
+}
+
+.action-btn.ghost:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.action-card-status {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #888;
+}
+
+.action-card-status.done {
+  color: #4caf50;
+}
+
+.action-card-status.failed {
+  color: #e74c3c;
+}
+
+.action-card-status.running {
+  color: #ff8fab;
+}
+
 .chat-input-area {
   display: flex;
   gap: 8px;
@@ -290,6 +562,7 @@ onMounted(() => {
   padding: 5px 9px;
   font-size: 11px;
   transition: all 0.2s;
+  cursor: pointer;
 }
 
 .quick-replies button:hover,

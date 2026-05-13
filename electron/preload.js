@@ -31,6 +31,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getPosition: () => ipcRenderer.invoke('pet:get-position'),
   setPosition: (x, y) => ipcRenderer.invoke('pet:set-position', x, y),
 
+  // 动作执行
+  executeAction: (action) => ipcRenderer.invoke('action:execute', action),
+
   // 系统托盘事件
   onTrayOpenSettings: (callback) => ipcRenderer.on('tray:open-settings', callback),
   onTrayOpenPomodoro: (callback) => ipcRenderer.on('tray:open-pomodoro', callback)

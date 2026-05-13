@@ -57,6 +57,24 @@
         </section>
 
         <section class="setting-section">
+          <h4>对话驱动操作</h4>
+          <label class="switch-row">
+            <span>启用</span>
+            <input type="checkbox" :checked="petStore.actionsConfig.enabled" @change="setActionsEnabled($event)" />
+          </label>
+          <label class="switch-row">
+            <span>执行前确认</span>
+            <select :value="petStore.actionsConfig.confirmPolicy" @change="setPolicy($event)" class="text-input small">
+              <option value="never">从不</option>
+              <option value="risky">仅风险动作</option>
+              <option value="always">总是确认</option>
+            </select>
+          </label>
+          <button class="primary-btn" @click="$emit('open-shortcuts')">管理快捷方式 ({{ petStore.actionShortcuts.length }})</button>
+          <p class="hint">在聊天框输入"帮我打开 leetcode""搜一下 Vue 3"等，桌宠会自动执行。AI 也会基于此列表智能调用。</p>
+        </section>
+
+        <section class="setting-section">
           <h4>数据</h4>
           <div class="button-row">
             <button class="soft-btn" @click="copyExport">导出配置</button>
@@ -74,13 +92,21 @@
 import { ref } from 'vue'
 import { usePetStore } from '../stores/petStore'
 
-defineEmits(['close'])
+defineEmits(['close', 'open-shortcuts'])
 
 const petStore = usePetStore()
 const importText = ref('')
 
 function save() {
   petStore.saveState()
+}
+
+function setActionsEnabled(event) {
+  petStore.setActionsEnabled(event.target.checked)
+}
+
+function setPolicy(event) {
+  petStore.setActionsConfirmPolicy(event.target.value)
 }
 
 async function setOpacity() {

@@ -107,6 +107,8 @@ export const usePetStore = defineStore('pet', () => {
   const tasks = computed(() => data.study.tasks)
   const reminders = computed(() => data.reminders)
   const achievements = computed(() => data.achievements)
+  const actionsConfig = computed(() => data.settings.actions || { enabled: true, confirmPolicy: 'risky', shortcuts: [] })
+  const actionShortcuts = computed(() => actionsConfig.value.shortcuts || [])
 
   function scheduleSave() {
     clearTimeout(saveTimer)
@@ -348,11 +350,21 @@ export const usePetStore = defineStore('pet', () => {
     lookY.value = Math.max(-1, Math.min(1, Number(y) || 0))
   }
 
-  function addChatMessage(role, text) {
-    data.chat.messages.push({ id: crypto.randomUUID(), role, text, time: timeText(), ts: Date.now() })
+  function addChatMessage(role, text, extra = null) {
+    const message = { id: crypto.randomUUID(), role, text, time: timeText(), ts: Date.now() }
+    if (extra && typeof extra === 'object') Object.assign(message, extra)
+    data.chat.messages.push(message)
     if (data.chat.messages.length > MAX_CHAT_MESSAGES) {
       data.chat.messages = data.chat.messages.slice(-MAX_CHAT_MESSAGES)
     }
+    scheduleSave()
+    return message
+  }
+
+  function updateChatMessage(id, patch) {
+    const item = data.chat.messages.find(msg => msg.id === id)
+    if (!item) return
+    Object.assign(item, patch)
     scheduleSave()
   }
 
@@ -433,6 +445,67 @@ export const usePetStore = defineStore('pet', () => {
     if (isReady.value) showSpeech(`成就解锁：${item.title}`, 3800, 'achievement')
   }
 
+  // ---------- 动作快捷方式（用于"对话驱动操作系统"） ----------
+  function ensureActionsSettings() {
+    if (!data.settings.actions) {
+      data.settings.actions = { enabled: true, confirmPolicy: 'risky', shortcuts: [] }
+    }
+    if (!Array.isArray(data.settings.actions.shortcuts)) {
+      data.settings.actions.shortcuts = []
+    }
+    return data.settings.actions
+  }
+
+  function addShortcut(shortcut) {
+    const cfg = ensureActionsSettings()
+    const item = {
+      id: shortcut.id || ('sc-' + (crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Date.now().toString(36))),
+      icon: shortcut.icon || '✨',
+      label: String(shortcut.label || shortcut.id || '快捷方式').trim(),
+      keywords: Array.isArray(shortcut.keywords)
+        ? shortcut.keywords.map(k => String(k).trim()).filter(Boolean)
+        : String(shortcut.keywords || '').split(/[,，\s]+/).map(s => s.trim()).filter(Boolean),
+      type: shortcut.type || 'open_url',
+      target: shortcut.target || '',
+      params: shortcut.params || undefined,
+      engine: shortcut.engine || undefined
+    }
+    cfg.shortcuts.push(item)
+    scheduleSave()
+    return item
+  }
+
+  function updateShortcut(id, patch) {
+    const cfg = ensureActionsSettings()
+    const item = cfg.shortcuts.find(s => s.id === id)
+    if (!item) return
+    if (patch.keywords !== undefined && !Array.isArray(patch.keywords)) {
+      patch = {
+        ...patch,
+        keywords: String(patch.keywords).split(/[,，\s]+/).map(s => s.trim()).filter(Boolean)
+      }
+    }
+    Object.assign(item, patch)
+    scheduleSave()
+  }
+
+  function deleteShortcut(id) {
+    const cfg = ensureActionsSettings()
+    cfg.shortcuts = cfg.shortcuts.filter(s => s.id !== id)
+    scheduleSave()
+  }
+
+  function setActionsEnabled(value) {
+    ensureActionsSettings().enabled = Boolean(value)
+    scheduleSave()
+  }
+
+  function setActionsConfirmPolicy(policy) {
+    const allowed = ['always', 'risky', 'never']
+    ensureActionsSettings().confirmPolicy = allowed.includes(policy) ? policy : 'risky'
+    scheduleSave()
+  }
+
   function getSevenDayFocus() {
     return Array.from({ length: 7 }, (_, index) => {
       const date = new Date()
@@ -493,6 +566,8 @@ export const usePetStore = defineStore('pet', () => {
     tasks,
     reminders,
     achievements,
+    actionsConfig,
+    actionShortcuts,
     init,
     saveState,
     setState,
@@ -516,6 +591,7 @@ export const usePetStore = defineStore('pet', () => {
     setFacing,
     setLookDirection,
     addChatMessage,
+    updateChatMessage,
     clearChatMessages,
     addTask,
     updateTask,
@@ -525,6 +601,11 @@ export const usePetStore = defineStore('pet', () => {
     deleteReminder,
     completeReminder,
     unlockAchievement,
+    addShortcut,
+    updateShortcut,
+    deleteShortcut,
+    setActionsEnabled,
+    setActionsConfirmPolicy,
     getSevenDayFocus,
     resetData,
     exportData,

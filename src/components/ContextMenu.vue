@@ -23,6 +23,10 @@
           <span class="menu-icon">📚</span>
           <span>学习陪伴</span>
         </div>
+        <div class="menu-item" @click="$emit('open-shortcuts')">
+          <span class="menu-icon">🎯</span>
+          <span>快捷动作</span>
+        </div>
         <div class="menu-divider"></div>
         <div class="menu-item" @click="$emit('open-info')">
           <span class="menu-icon">📋</span>
@@ -122,6 +126,7 @@ const props = defineProps({
 defineEmits([
   'close', 'open-chat', 'open-pomodoro', 'open-reminder',
   'open-study', 'open-info', 'open-achievements', 'open-settings',
+  'open-shortcuts',
   'toggle-top', 'set-opacity', 'set-pet-size', 'toggle-shadow',
   'toggle-night-mode', 'toggle-taskbar', 'toggle-auto-launch',
   'reset-position', 'hide-pet', 'quit'
