@@ -2,7 +2,7 @@
 
 基于自定义角色图片构建的可爱桌面宠物应用。使用 Electron + Vue 3 开发，打包后是一个独立的 Windows 桌面程序（.exe），双击即可运行。
 
-当前角色：**平泽唯（呆唯）**，已接入 DeepSeek AI 大模型，能真正和你聊天。
+当前角色：**平泽唯（呆唯）**
 
 ## 运行方式
 
@@ -107,7 +107,7 @@ desktop-pet/
 
 ## 接入 AI 对话
 
-聊天功能通过 `src/utils/ai.js` 实现。API Key 不写进源码，避免上传 GitHub 后泄露。
+聊天功能通过 `src/utils/ai.js` 实现。
 
 运行程序后打开：
 
@@ -129,8 +129,6 @@ system prompt: 呆唯的人设或你想要的角色设定
 ```text
 %APPDATA%/desktop-pet/pet-settings.json
 ```
-
-这个文件已被 `.gitignore` 排除，不会上传到 GitHub。
 
 ### 支持的 AI 服务
 
